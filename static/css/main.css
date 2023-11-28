@@ -99,10 +99,14 @@ h1,h2,h3,h4,h5,h6{
 }
 
 #search-form {
-  width: 100%;
-  display: flex;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-#search-form input {
-  flex: 1;
+.topdiv {
+  position: fixed;
+  top: 0;
+  width: 100%;
 }
