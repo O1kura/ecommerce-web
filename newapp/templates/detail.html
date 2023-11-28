@@ -1,0 +1,36 @@
+{% extends 'master.html' %}
+{% load static %}
+{% block content %}
+<script>
+    function updateQuantity(){
+        var value = document.getElementById('quantity-input').value
+        document.getElementById("add").dataset.quantity = value
+    }
+</script>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="box-element">
+            <img src="{{product.imageURL}}" style="width: 100%; height: auto">
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="box-element">
+            <div style="flex:2"><p><strong>{{product.name}}</strong></p></div>
+            <div style="flex:1"><p>Price: ${{product.price|floatformat:2}}</p></div>
+            <div style="flex:1">
+                <p>Quantity: </p>
+                    <input id="quantity-input" type="number" value=1 min=1 oninput="validity.valid||(value='');"
+                    onblur="if(this.value=='') this.value='1';">
+            </div>
+            <br>
+            <button data-product="{{product.id}}" data-action="add" data-quantity="" onclick="updateQuantity()"
+                    id="add"
+                    class="btn btn-outline-secondary add-btn update-cart">
+                Add to Cart
+            </button>
+            <a  class="btn btn-outline-secondary" href="{% url 'store' %}">&#x2190; Store</a>
+        </div>
+    </div>
+</div>
+
+{% endblock content%}
