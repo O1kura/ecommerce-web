@@ -1,10 +1,12 @@
 import json
 
+
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.views import View
 
-from .forms import LoginForm
+from .forms import LoginForm, SignUpForm
 from .models import *
 import datetime
 
@@ -112,8 +114,8 @@ def processOrder(request):
     })
 
 
-def sign_in(request):
-    if request.method == 'GET':
+class Sign_In(View):
+    def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('')
         form = LoginForm()
@@ -121,7 +123,8 @@ def sign_in(request):
             'form': form
         }
         return render(request, 'login.html', context)
-    elif request.method == 'POST':
+
+    def post(self, request, *args, **kwargs):
         form = LoginForm(request.POST)
 
         if form.is_valid():
@@ -139,6 +142,36 @@ def sign_in(request):
 def sign_out(request):
     logout(request)
     return redirect('store')
+
+
+class SignUp(View):
+    def get(selfs, request):
+        form = SignUpForm()
+        return render(request, 'signup.html', {'form': form})
+
+    def post(self, request):
+        form = SignUpForm(request.POST)
+
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            user = User.objects.create_user(username=username, password=password)
+
+            customer = Customer.objects.create(user=user)
+            if form.cleaned_data['name'] == '':
+                customer.name = username
+            else:
+                customer.name = form.cleaned_data['name']
+            customer.email = form.cleaned_data['email']
+            customer.save()
+
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('store')
+
+        return render(request, 'signup.html', {'form': form})
 
 
 def detail(request, slug, id):

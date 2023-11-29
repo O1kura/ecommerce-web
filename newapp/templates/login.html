@@ -1,9 +1,13 @@
 {% extends 'master.html' %}
 {% load static %}
 {% block content %}
-<form method="post">
+<form method="post" class="center-form">
+  <label><strong>Log In Form</strong></label> <br>
   {% csrf_token %}
   {{ form.as_p }}
-  <button type="submit">Log In</button>
+  <button class="btn btn-outline-dark" type="submit" style="width:100px">Log In</button>
+  <br><br>
+  <p>Don't have an account yet? Sign up now</p>
+  <a class="btn btn-success" href="{% url 'sign_up' %}" style="width:100px">Sign Up</a>
 </form>
 {% endblock content%}

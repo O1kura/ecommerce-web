@@ -84,13 +84,13 @@
         </li>
       </ul>
       <div style="width:100%;display: flex; justify-content: center; align-items: center">
-        <form class="d-flex" id="search_form" role="search" action="{% url 'store' %}" style="width: 80%;">
+        <form class="d-flex" class="center-form" role="search" action="{% url 'store' %}" style="width: 90%;">
           <input class="form-control" name="key" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
       </div>
       {% if request.user.is_authenticated %}
-      <label style="padding-right: 2%; padding-left: 2%; color: azure;">{{request.user.username}}</label>
+      <label style="width: 10%; color: azure;">{{request.user.customer.name}}</label>
       <a href="{% url 'sign_out'%}" class="btn btn-warning">Logout</a>
       {% else %}
       <a href="{% url 'sign_in'%}"  class="btn btn-warning">Login</a>
