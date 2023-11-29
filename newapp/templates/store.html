@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <div class="row">
-    {% if products %}
+<!--    {% if products %}-->
         {% for product in products %}
         <div class="col-lg-4">
             <img class="thumbnail" src="{{product.imageURL}}">
@@ -18,8 +18,8 @@
             </div>
         </div>
         {% endfor %}
-    {% else %}
-        <h6 style="text-align: center; line-height: 200px; height: 200px;"><strong>No Product</strong></h6>
-    {% endif %}
+<!--    {% else %}-->
+<!--        <h6 style="text-align: center; line-height: 200px; height: 200px;"><strong>No Product</strong></h6>-->
+<!--    {% endif %}-->
 </div>
 {% endblock content %}

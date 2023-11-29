@@ -1,6 +1,6 @@
 import json
 
-
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -14,21 +14,24 @@ from .utils import cookieCart, cartData, guestOrder
 
 
 # Create your views here.
-def store(request):
-    if 'key' in request.GET:
-        key = request.GET.get('key')
-        products = Product.objects.filter(name__icontains=key)
-    else:
-        products = Product.objects.all()
-    data = cartData(request)
-    cartItems = data['cartItems']
+class Store(View):
+    def get(self, request, *args, **kwargs):
+        if 'key' in request.GET:
+            key = request.GET.get('key')
+            products = Product.objects.filter(name__icontains=key)
+        else:
+            products = Product.objects.all()
+        data = cartData(request)
+        cartItems = data['cartItems']
+        if len(products) == 0:
+            messages.error(request, "No product like that")
 
-    context = {
-        'products': products,
-        'cartItems': cartItems,
-    }
+        context = {
+            'products': products,
+            'cartItems': cartItems,
+        }
 
-    return render(request, 'store.html', context)
+        return render(request, 'store.html', context)
 
 
 def cart(request):
@@ -126,7 +129,6 @@ class Sign_In(View):
 
     def post(self, request, *args, **kwargs):
         form = LoginForm(request.POST)
-
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -135,8 +137,12 @@ class Sign_In(View):
             if user is not None:
                 login(request, user)
                 return redirect('store')
-
-        return render(request, 'login.html', {'form': form})
+            else:
+                messages.error(request, 'Wrong username or password')
+        context = {
+            'form': form,
+        }
+        return render(request, 'login.html', context)
 
 
 def sign_out(request):
@@ -174,12 +180,13 @@ class SignUp(View):
         return render(request, 'signup.html', {'form': form})
 
 
-def detail(request, slug, id):
-    data = cartData(request)
-    cartItems = data['cartItems']
-    product = Product.objects.filter(id=id).first()
-    context = {
-        'product': product,
-        'cartItems': cartItems
-    }
-    return render(request, 'detail.html', context)
+class Detail(View):
+    def get(self, request, *args, **kwargs):
+        data = cartData(request)
+        cartItems = data['cartItems']
+        product = Product.objects.filter(id=kwargs.get('id')).first()
+        context = {
+            'product': product,
+            'cartItems': cartItems
+        }
+        return render(request, 'detail.html', context)

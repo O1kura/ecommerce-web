@@ -42,7 +42,7 @@
 			<div class="box-element hidden" id="payment-info">
 				<form>
 					<small>Paypal Options</small>
-					<button id="make-payment">Make payment</button>
+					<button type="button" id="make-payment">Make payment</button>
 					<div id="paypal-button-container"></div>
 				</form>
 			</div>
@@ -107,24 +107,25 @@
 		var total = '{{order.get_cart_total}}'
 		var items =  '{{order.get_cart_items}}'
 
-		if (shipping == 'False'){
-		 	document.getElementById('shipping-info').innerHTML = ''
-		}
+		if ( items != '0'){
+			if (shipping == 'False'){
+				document.getElementById('shipping-info').innerHTML = ''
+			}
 
-		if (user != 'AnonymousUser'){
-		 	document.getElementById('user-info').innerHTML = ''
-		 }
+			if (user != 'AnonymousUser'){
+				document.getElementById('user-info').innerHTML = ''
+			 }
 
-		if (shipping == 'False' && user != 'AnonymousUser'){
-			//Hide entire form if user is logged in and shipping is false
-				document.getElementById('form-wrapper').classList.add("hidden");
-				//if there are items in the list
-				if( items != '0'){
+			if (shipping == 'False' && user != 'AnonymousUser'){
+				//Hide entire form if user is logged in and shipping is false
+					document.getElementById('form-wrapper').classList.add("hidden");
 					//Show payment if logged in user wants to buy an item that does not require shipping
 					document.getElementById('payment-info').classList.remove("hidden");
-			    }
-		}
 
+			}
+		}else{
+			document.getElementById('form-wrapper').classList.add("hidden");
+		}
 		var form = document.getElementById('form')
 <!--		csrftoken = form.getElementsByTagName("input")[0].value-->
 		form.addEventListener('submit', function(e){
@@ -183,13 +184,10 @@
 	    	.then((data) => {
 				console.log('Success:', data);
 				alert('Transaction completed');
-
+				window.location.href = "{% url 'store' %}"
 				cart = {}
 				document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
-
-				window.location.href = "{% url 'store' %}"
-
-				})
+			})
 	    }
 	</script>
 {% endblock content %}
