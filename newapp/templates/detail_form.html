@@ -1,0 +1,16 @@
+{% extends 'admin_page.html' %}
+{% load static %}
+{% block content %}
+<form enctype="multipart/form-data" method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <img width="400px" height="auto" src="{{image}}">
+  <br>
+  <button type="submit" class="btn btn-success" name="save"> Save </button>
+  {% if action != 'add' %}
+  <button type="submit" class="btn btn-danger" name="del"
+          onclick="return confirm('Do you really want to delete the product?');">Delete</button>
+  {% endif %}
+</form>
+
+{% endblock content %}

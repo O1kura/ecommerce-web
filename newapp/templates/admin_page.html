@@ -1,0 +1,39 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block extra_content %}
+  <li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="{% url 'customers_management' %}">Customers</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="{% url 'orders_management' %}">Orders</a>
+  </li>
+{% endblock extra_content %}
+
+{% block content %}
+  <a href="/manager/products/add"  class="btn btn-secondary"> Add Product</a>
+  <div>
+    <caption>Products Information: </caption>
+    <br>
+    <table class="scroll">
+      <thead>
+        <tr>
+          <th scope="col" colspan="1">ID</th>
+          <th scope="col" colspan="1">Image</th>
+          <th scope="col" colspan="1">Name</th>
+          <td><span><input type="checkbox"></span></td>
+        </tr>
+      </thead>
+      <tbody>
+      {% for product in products %}
+        <tr>
+          <td><a href="/manager/products/{{product.id}}">{{product.id}}</a></td>
+          <td><div><img class="row-image" src="{{product.imageURL}}"></div></td>
+          <td>{{product.name}}</td>
+          <td><span><input type="checkbox" value="{{product.id}}"></span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

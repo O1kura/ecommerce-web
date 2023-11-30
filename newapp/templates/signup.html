@@ -1,7 +1,8 @@
 {% extends 'master.html' %}
 {% load static %}
 {% block content %}
-<form method="post" class="center-form">
+
+<form method="post" class="center-form" >
   <label><strong>Sign Up Form</strong></label> <br>
   {% csrf_token %}
   {{ form.as_p }}
@@ -10,4 +11,4 @@
   <p>Already have an account? Log in</p>
   <a  class="btn btn-success" href="{% url 'sign_in' %}" style="width:100px">Log In</a>
 </form>
-{% endblock content%}
+{% endblock content %}

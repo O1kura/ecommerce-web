@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import Model
 
-from newapp.models import Customer
+from newapp.models import Customer, Product
+
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=65)
@@ -22,7 +24,12 @@ class SignUpForm(LoginForm):
             raise forms.ValidationError("The two password fields must match.")
 
         if User.objects.filter(username__exact=username).first() is not None:
-            print(User.objects.filter(username__exact=username))
             raise forms.ValidationError("Username existed")
 
         return self.cleaned_data
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = '__all__'

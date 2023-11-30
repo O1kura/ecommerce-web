@@ -1,0 +1,30 @@
+{% extends 'admin_page.html' %}
+{% load static %}
+{% block content %}
+  <div>
+    <caption>Orders Information: </caption>
+    <br>
+    <table class="scroll">
+      <thead>
+        <tr>
+          <th scope="col" colspan="1">ID</th>
+          <th scope="col">Customer</th>
+          <th scope="col">Date</th>
+          <th scope="col">State</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for order in orders %}
+        <tr>
+          <td>{{order.id}}</td>
+          <td>{{order.customer}}</td>
+          <td>{{order.date_ordered}}</td>
+          <td>{{order.complete|yesno:"Yes,No"}}</td>
+          <td></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock content %}

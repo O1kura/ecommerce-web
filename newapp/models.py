@@ -19,7 +19,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200, null=True)
     price = models.FloatField()
     digital = models.BooleanField(default=False, null=True, blank=False)
-    image = models.ImageField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True, )
 
     class Meta:
         db_table = 'product'
@@ -101,4 +101,4 @@ class ShippingAddress(models.Model):
         db_table = 'shipping_address'
 
     def __str__(self):
-        return self.address
+        return f'order: {self.order.id} {self.address}'
