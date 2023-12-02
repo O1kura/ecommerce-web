@@ -12,9 +12,13 @@ urlpatterns = [
     path('signup/', views.SignUp.as_view(), name='sign_up'),
     path('manager/', views.Manage.as_view(), name='manager'),
     path('manager/customers/', views.ManageCustomers.as_view(), name='customers_management'),
+    path('manager/customers/<int:id>', views.ManageCustomer.as_view()),
     path('manager/orders/', views.ManageOrders.as_view(), name='orders_management'),
+    path('manager/orders/<int:id>', views.ManageOrder.as_view()),
     path('manager/products/<int:id>', views.ManageProduct.as_view()),
-    path('manager/products/add', views.AddProduct.as_view())
+    path('manager/products/add', views.AddProduct.as_view()),
+    path('manager/customers/add', views.AddUser.as_view()),
+    path('manager/delete/', views.DeleteAPI.as_view())
 
 
 ]

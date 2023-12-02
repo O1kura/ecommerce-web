@@ -1,0 +1,54 @@
+{% extends 'admin_page.html' %}
+{% load static %}
+{% block content %}
+<form enctype="multipart/form-data" method="post" ch>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <br>
+  <label> Items: </label>
+  <br>
+  <div class="box-element">
+      <div class="cart-row">
+          <div style="flex:2"><strong>Preview</strong></div>
+          <div style="flex:2"><strong>Item</strong></div>
+          <div style="flex:1"><strong>Price</strong></div>
+          <div style="flex:1"><strong>Quantity</strong></div>
+          <div style="flex:1"><strong>Total</strong></div>
+      </div>
+      {% for item in items %}
+      <div class="cart-row">
+          <div style="flex:2"><img class="row-image" src="{{item.product.imageURL}}"></div>
+          <div style="flex:2"><p><a href="/manager/products/{{item.product.id}}">{{item.product.name}}</a></p></div>
+          <div style="flex:1"><p>${{item.product.price|floatformat:2}}</p></div>
+          <div style="flex:1"><p>{{item.quantity}}</p></div>
+          <div style="flex:1"><p>${{item.get_total|floatformat:2}}</p></div>
+      </div>
+      {% endfor %}
+     <div class="cart-row">
+          <div style="flex:2"></div>
+          <div style="flex:2"></div>
+          <div style="flex:1"></div>
+          <div style="flex:1"><strong>{{order.get_cart_items}}</strong></div>
+          <div style="flex:1"><strong>${{order.get_cart_total|floatformat:2}}</strong></div>
+      </div>
+  </div>
+
+<!--  <button type="submit" class="btn btn-success" name="save"> Save </button>-->
+  {% if action != 'add' %}
+  <button type="submit" class="btn btn-danger" name="del"
+          onclick="return confirm('Do you really want to delete this order?');">Delete</button>
+  {% endif %}
+</form>
+<br>
+<!--<p>-->
+<!--  <label>Items: </label>-->
+<!--  <br>-->
+<!--  {% for item in items %}-->
+<!--    {% csrf_token %}-->
+<!--    {{ item.as_p}}-->
+<!--  {% endfor %}-->
+<!--</p>-->
+<script>
+  document.getElementById("search_bar").action = "{% url 'orders_management' %}"
+</script>
+{% endblock content %}

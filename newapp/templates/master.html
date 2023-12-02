@@ -86,13 +86,16 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{% url 'manager' %}">Products</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'customers_management' %}">Customers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'orders_management' %}">Orders</a>
+        </li>
         {% endif %}
-        {% block extra_content %}
-
-        {% endblock %}
       </ul>
       <div style="width:100%;display: flex; justify-content: center; align-items: center">
-        <form class="d-flex" class="center-form" role="search"  style="width: 90%;">
+        <form class="d-flex" class="center-form" role="search"  style="width: 90%;" id="search_bar">
           <input class="form-control" name="key" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>

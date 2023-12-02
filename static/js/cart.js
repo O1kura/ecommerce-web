@@ -1,4 +1,5 @@
 var updateBtns = document.getElementsByClassName('update-cart')
+var checkBoxBtns = document.getElementsByClassName('action-checkbox-column')
 
 for(var i = 0; i < updateBtns.length; i++){
     updateBtns[i].addEventListener('click', function(){
@@ -10,8 +11,20 @@ for(var i = 0; i < updateBtns.length; i++){
         if(user === "AnonymousUser"){
             addCookieItem(productID, action, quantity)
         }else{
-            updateUserOrder(productID,action, quantity)
+            updateUserOrder(productID, action, quantity)
         }
+    })
+}
+
+for(var i = 0; i < checkBoxBtns.length; i++){
+    checkBoxBtns[i].addEventListener('change', function(evt){
+        var checkboxes = document.getElementsByTagName('input');
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].type == 'checkbox' &&  checkboxes[i].name == 'action-toggle') {
+                checkboxes[i].checked = this.checked;
+            }
+        }
+
     })
 }
 

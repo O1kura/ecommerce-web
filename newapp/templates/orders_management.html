@@ -7,21 +7,23 @@
     <table class="scroll">
       <thead>
         <tr>
-          <th scope="col" colspan="1">ID</th>
+          <th scope="col" colspan="1">Order ID</th>
           <th scope="col">Customer</th>
           <th scope="col">Date</th>
           <th scope="col">State</th>
-          <th scope="col"></th>
+          <th scope="col">Total</th>
+          <td><span><input class="action-checkbox-column" type="checkbox"></span></td>
         </tr>
       </thead>
       <tbody>
       {% for order in orders %}
         <tr>
-          <td>{{order.id}}</td>
-          <td>{{order.customer}}</td>
+          <td><a href="/manager/orders/{{order.id}}">{{order.id}}</td>
+          <td><a href="/manager/customers/{{order.customer.id}}">{{order.customer}}</td>
           <td>{{order.date_ordered}}</td>
           <td>{{order.complete|yesno:"Yes,No"}}</td>
-          <td></td>
+          <td>${{order.get_cart_total|floatformat:2}}</td>
+          <td><span><input type="checkbox" value="{{product.id}}"></span></td>
         </tr>
       {% endfor %}
       </tbody>

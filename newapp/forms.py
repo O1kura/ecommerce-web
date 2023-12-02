@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.db.models import Model
-
-from newapp.models import Customer, Product
+from newapp.models import Customer, Product, OrderItem, Order
 
 
 class LoginForm(forms.Form):
@@ -13,12 +11,13 @@ class LoginForm(forms.Form):
 class SignUpForm(LoginForm):
     confirm_password = forms.CharField(max_length=65, widget=forms.PasswordInput)
     name = forms.CharField(max_length=200, required=False)
-    email = forms.EmailField(max_length=200, required=False)
+    email = forms.EmailField(max_length=200, required=True)
 
     def clean(self):
         password = self.cleaned_data.get('password')
         password2 = self.cleaned_data.get('confirm_password')
         username = self.cleaned_data.get('username')
+        email = self.cleaned_data.get('email')
 
         if password and password != password2:
             raise forms.ValidationError("The two password fields must match.")
@@ -26,6 +25,8 @@ class SignUpForm(LoginForm):
         if User.objects.filter(username__exact=username).first() is not None:
             raise forms.ValidationError("Username existed")
 
+        if Customer.objects.filter(email__exact=email).first() is not None:
+            raise forms.ValidationError("Email has been used")
         return self.cleaned_data
 
 
@@ -33,3 +34,27 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = '__all__'
+
+        def clean(self):
+            price = self.model.price
+            if price <= 0:
+                raise forms.ValidationError("Negative price")
+
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = '__all__'
+
+
+class OrderItemForm(forms.ModelForm):
+    class Meta:
+        model = OrderItem
+        fields = ['product', 'quantity']
+
+
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = '__all__'
+

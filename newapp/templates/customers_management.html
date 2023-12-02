@@ -1,6 +1,7 @@
 {% extends 'admin_page.html' %}
 {% load static %}
 {% block content %}
+  <a href="/manager/customers/add"  class="btn btn-secondary"> Add User</a>
   <div>
     <caption>Customers Information: </caption>
     <br>
@@ -10,14 +11,16 @@
           <th scope="col" colspan="1">ID</th>
           <th scope="col">Name</th>
           <th scope="col">Email</th>
+          <td><span><input class="action-checkbox-column" type="checkbox"></span></td>
         </tr>
       </thead>
       <tbody>
       {% for customer in customers %}
         <tr>
-          <td>{{customer.id}}</td>
-          <td>{{customer.name}}</td>
+          <td><a href="/manager/customers/{{customer.id}}">{{customer.id}}</td>
+          <td><a href="/manager/customers/{{customer.id}}">{{customer.name}}</td>
           <td>{{customer.email}}</td>
+          <td><span><input type="checkbox" value="{{product.id}}"></span></td>
         </tr>
       {% endfor %}
       </tbody>
