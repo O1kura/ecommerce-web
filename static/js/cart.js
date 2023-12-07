@@ -78,3 +78,18 @@ function updateUserOrder(productID, action, quantity){
         location.reload()
     })
 }
+
+function DeleteParams(key){
+    var search = window.location.search
+    const params = new URLSearchParams(search)
+    params.delete(key);
+    console.log(params.toString());
+    return "?" + params.toString();
+}
+function AddParams(key, value){
+    var search = window.location.search
+    const params = new URLSearchParams(search)
+    params.set(key, value)
+    console.log(params.toString());
+    return "?" + params.toString();
+}

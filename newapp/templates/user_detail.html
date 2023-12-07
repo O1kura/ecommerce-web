@@ -1,0 +1,21 @@
+{% extends 'admin_page.html' %}
+{% load static %}
+{% block content %}
+<form enctype="multipart/form-data" method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success" name="save"> Save </button>
+  {% if action != 'add' %}
+  <button type="submit" class="btn btn-danger" name="del"
+          onclick="return confirm('Do you really want to delete this user?');">Delete</button>
+  {% endif %}
+</form>
+<br>
+<p>
+  <label>Customer: </label>
+  <a href="/manager/customers/{{customer.id}}">{{customer}}</a>
+</p>
+<script>
+  document.getElementById("search_bar").action = "{% url 'users_management' %}"
+</script>
+{% endblock content %}

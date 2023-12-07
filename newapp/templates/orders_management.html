@@ -18,12 +18,13 @@
       <tbody>
       {% for order in orders %}
         <tr>
-          <td><a href="/manager/orders/{{order.id}}">{{order.id}}</td>
-          <td><a href="/manager/customers/{{order.customer.id}}">{{order.customer}}</td>
+          <td><a href="/manager/orders/{{order.id}}">{{order.id}}</a></td>
+          <td><a {% if order.customer != null %} href="/manager/customers/{{order.customer.id}}" {% endif %}>
+            {{order.customer}}</a></td>
           <td>{{order.date_ordered}}</td>
           <td>{{order.complete|yesno:"Yes,No"}}</td>
           <td>${{order.get_cart_total|floatformat:2}}</td>
-          <td><span><input type="checkbox" value="{{product.id}}"></span></td>
+          <td><span><input name="action-toggle" type="checkbox" value="{{product.id}}"></span></td>
         </tr>
       {% endfor %}
       </tbody>

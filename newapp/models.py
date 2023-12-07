@@ -1,5 +1,11 @@
+import os
+from pathlib import Path
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
+
+from newproj import settings
 
 
 class Customer(models.Model):
@@ -19,6 +25,7 @@ class Product(models.Model):
     price = models.FloatField()
     digital = models.BooleanField(default=False, null=True, blank=False)
     image = models.ImageField(null=True, blank=True, )
+    # is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'product'
@@ -31,8 +38,62 @@ class Product(models.Model):
             url = ''
         return url
 
-    def __str__(self):
-        return self.name
+
+@receiver(models.signals.pre_delete, sender=Product)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    img = instance.image
+    old_file = instance.imageURL
+    path = Path(os.path.join(settings.MEDIA_ROOT, img.name))
+
+    if old_file != '':
+        if os.path.isfile(path):
+            os.remove(path)
+
+
+@receiver(models.signals.pre_save, sender=Product)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.id:
+        return False
+
+    product = Product.objects.get(id=instance.id)
+    img = product.image
+    old_file = product.imageURL
+    path = Path(os.path.join(settings.MEDIA_ROOT, img.name))
+
+    if old_file == '':
+        return False
+
+    new_file = instance.imageURL
+    if not old_file == new_file:
+        os.remove(path)
+
+
+@receiver(models.signals.pre_save, sender=User)
+def auto_change_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.id:
+        return False
+
+    user = User.objects.get(id=instance.id)
+    email = user.email
+
+    if not email == instance.email:
+        customer = Customer.objects.get(user=user)
+        customer.email = instance.email
+        customer.save()
 
 
 class Order(models.Model):

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from .forms import LoginForm, SignUpForm, ProductForm, CustomerForm, OrderForm
+from .forms import LoginForm, SignUpForm, ProductForm, CustomerForm, OrderForm, UserForm
 from .models import *
 import datetime
 
@@ -16,9 +16,11 @@ from .utils import cartData, guestOrder
 # Create your views here.
 class Store(View):
     def get(self, request, *args, **kwargs):
+        context = {}
         if 'key' in request.GET:
             key = request.GET.get('key')
             products = Product.objects.filter(name__icontains=key)
+            context['key'] = key
         else:
             products = Product.objects.all()
         data = cartData(request)
@@ -26,10 +28,8 @@ class Store(View):
         if len(products) == 0:
             messages.error(request, "No product")
 
-        context = {
-            'products': products,
-            'cartItems': cartItems,
-        }
+        context['products'] = products
+        context['cartItems'] = cartItems
 
         return render(request, 'store.html', context)
 
@@ -205,22 +205,50 @@ class Detail(View):
         return render(request, 'detail.html', context)
 
 
-class Manage(View):
+class ManageProducts(View):
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
+            data = cartData(request)
+            cartItems = data['cartItems']
+            context = {
+                'cartItems': cartItems
+            }
             if 'key' in request.GET:
                 key = request.GET.get('key')
+                context['key'] = key
                 products = Product.objects.filter(name__icontains=key)
             else:
                 products = Product.objects.all()
 
+            context['products'] = products
+            return render(request, 'admin_page.html', context)
+        else:
+            return custom_404(request)
+
+
+class ManageUsers(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_superuser:
             data = cartData(request)
             cartItems = data['cartItems']
             context = {
-                'products': products,
-                'cartItems': cartItems
+                'cartItems': cartItems,
             }
-            return render(request, 'admin_page.html', context)
+
+            if 'key' in request.GET:
+                key = request.GET.get('key')
+                users = User.objects.filter(Q(username__icontains=key) | Q(email__icontains=key))
+                context['key'] = key
+            else:
+                users = User.objects.all()
+
+            if 'is_staff' in request.GET:
+                is_staff = request.GET.get('is_staff')
+                users = users.filter(is_staff__exact=is_staff)
+                context['is_staff'] = is_staff
+
+            context['users'] = users
+            return render(request, 'users_management.html', context)
         else:
             return custom_404(request)
 
@@ -228,17 +256,25 @@ class Manage(View):
 class ManageCustomers(View):
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
-            if 'key' in request.GET:
-                key = request.GET.get('key')
-                customers = Customer.objects.filter(name__icontains=key)
-            else:
-                customers = Customer.objects.all()
             data = cartData(request)
             cartItems = data['cartItems']
             context = {
-                'customers': customers,
                 'cartItems': cartItems
             }
+            if 'key' in request.GET:
+                key = request.GET.get('key')
+                customers = Customer.objects.filter(name__icontains=key)
+                context['key'] = key
+            else:
+                customers = Customer.objects.all()
+
+            if 'anonymous_user' in request.GET:
+                anonymous_user = request.GET.get('anonymous_user')
+                customers = customers.filter(user__isnull=not anonymous_user)
+                context['anonymous_user'] = anonymous_user
+
+            context['customers'] = customers
+
             return render(request, 'customers_management.html', context)
         else:
             return custom_404(request)
@@ -247,17 +283,19 @@ class ManageCustomers(View):
 class ManageOrders(View):
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
+            context = {}
             if 'key' in request.GET:
                 key = request.GET.get('key')
                 orders = Order.objects.filter(Q(customer__name__icontains=key) | Q(id__icontains=key))
+                context['key'] = key
             else:
                 orders = Order.objects.all()
+
             data = cartData(request)
             cartItems = data['cartItems']
-            context = {
-                'orders': orders,
-                'cartItems': cartItems
-            }
+            context['orders'] = orders
+            context['cartItems'] = cartItems
+
             return render(request, 'orders_management.html', context)
         else:
             return custom_404(request)
@@ -325,12 +363,15 @@ class AddProduct(View):
 
     def post(self, request, *args, **kwargs):
         if request.user.is_staff:
+            data = cartData(request)
+            cartItems = data['cartItems']
             form = ProductForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
                 messages.success(request, "Product changed successfully")
                 return redirect('manager')
-
+            context = {'cartItems': cartItems, 'form': ProductForm, 'action': 'add'}
+            return render(request, 'product_detail.html', context)
         else:
             return custom_404(request)
 
@@ -436,9 +477,57 @@ class ManageOrder(View):
             return custom_404(request)
 
 
+class ManageUser(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            key = kwargs['id']
+            user = User.objects.filter(id=key).first()
+
+            data = cartData(request)
+            cartItems = data['cartItems']
+            context = {
+                'cartItems': cartItems,
+            }
+            if user is not None:
+                context['form'] = UserForm(instance=user)
+                context['customer'] = user.customer
+            else:
+                messages.error(request, f"No user with id: {key}")
+                return redirect('users_management')
+
+            return render(request, 'user_detail.html', context)
+        else:
+            return custom_404(request)
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            key = kwargs['id']
+            user = User.objects.filter(id=key).first()
+            if user is None:
+                messages.error(request, f"No user with id: {key}")
+                return redirect('users_management')
+
+            context = {}
+
+            if 'save' in request.POST:
+                form = UserForm(request.POST, request.FILES, instance=user)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, "User changed successfully")
+                    return redirect('users_management')
+                context['form'] = form
+                return render(request, 'user_detail.html', context)
+            elif 'del' in request.POST:
+                user.delete()
+                messages.success(request, "user deleted successfully")
+                return redirect('users_management')
+        else:
+            return custom_404(request)
+
+
 class AddUser(View):
     def get(self, request, *args, **kwargs):
-        if request.user.is_staff:
+        if request.user.is_superuser:
             data = cartData(request)
             cartItems = data['cartItems']
             context = {'cartItems': cartItems, 'form': SignUpForm, 'action': 'add'}
@@ -447,7 +536,7 @@ class AddUser(View):
             return custom_404(request)
 
     def post(self, request, *args, **kwargs):
-        if request.user.is_staff:
+        if request.user.is_superuser:
             form = SignUpForm(request.POST, request.FILES)
             if form.is_valid():
                 username = form.cleaned_data['username']
@@ -464,7 +553,7 @@ class AddUser(View):
                 customer.email = form.cleaned_data['email']
                 customer.save()
 
-                return redirect("orders_management")
+                return redirect("users_management")
 
             return render(request, 'product_detail.html', {'form': form})
         else:
@@ -478,9 +567,16 @@ class DeleteAPI(View):
     def delete(self, request, *args, **kwargs):
         if request.user.is_staff:
             data = json.loads(request.body)
-            if data['object'] == 'product':
+            entity = data['object']
+            if entity == 'product':
                 Product.objects.filter(id__in=data['ids']).delete()
-
+            elif entity == 'user':
+                if request.user.is_superuser:
+                    User.objects.filter(id__in=data['ids']).delete()
+                else:
+                    return JsonResponse({
+                        'res': "No permission"
+                    })
             messages.success(request, "Delete selected")
             return JsonResponse({
                 'res': "success",

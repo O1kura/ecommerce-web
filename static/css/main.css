@@ -125,3 +125,9 @@ caption {
   padding: 8px;
   font-weight: bold;
 }
+#changelist-filter li.selected {
+    border-left: 5px solid var(--hairline-color);
+    padding-left: 10px;
+    margin-left: -15px;
+	color: blueviolet;
+}

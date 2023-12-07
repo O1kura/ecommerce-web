@@ -29,6 +29,7 @@
   </div>
   <script>
     function Delete(){
+      if(confirm("Are you sure you want to delete?")){
         var checkboxes = document.getElementsByTagName('input');
         let list = [];
         for (var i = 0; i < checkboxes.length; i++) {
@@ -57,6 +58,7 @@
         .then((data)=>{
           location.reload()
         })
+      }
     }
   </script>
 {% endblock %}

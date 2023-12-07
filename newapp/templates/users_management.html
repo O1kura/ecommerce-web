@@ -1,0 +1,116 @@
+{% extends 'admin_page.html' %}
+{% load static %}
+{% block content %}
+<a href="/manager/users/add"  class="btn btn-secondary"> Add User</a>
+<a onclick="Delete()" class="btn btn-danger">Delete</a>
+<div id="changelist-filter">
+  <details open>
+    <summary>By staff</summary>
+    <ul>
+      <li class="selected">
+        <a href="#" onclick="location.href=DeleteParams('is_staff');" >All</a></li>
+      <li>
+        <a href="#" onclick="location.href=AddParams('is_staff', 'True');">Yes</a></li>
+      <li>
+        <a href="#" onclick="location.href=AddParams('is_staff', 'False');" >No</a>
+      </li>
+    </ul>
+  </details>  
+</div>
+<div>
+  <caption>Customers Information: </caption>
+  <br>
+  <table class="scroll">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <td><span><input class="action-checkbox-column" type="checkbox"></span></td>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+      <tr>
+        <td>{{user.id}}</td>
+        <td><a href="/manager/users/{{user.id}}">{{user.username}}</a></td>
+        <td>{{user.email}}</td>
+        <td><span><input name="action-toggle" type="checkbox" value="{{user.id}}"></span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<script>
+  document.getElementById("search_bar").querySelector("input").value = "{{key}}"
+  var asd = "{{is_staff}}"
+  if(asd != '') {
+    var input = document.createElement("input")
+    input.type = 'hidden'
+    input.name = 'is_staff'
+    input.value = asd
+    document.getElementById("search_bar").appendChild(input)
+    if(asd == "True"){
+      var list = document.getElementById("changelist-filter").querySelectorAll('li')
+      for(var item of list){
+        item.classList.remove("selected")
+        if(item.querySelector('a').innerText == "Yes"){
+          item.classList.add("selected")
+        }
+      }
+    }else{
+      var list = document.getElementById("changelist-filter").querySelectorAll('li')
+      for(var item of list){
+        item.classList.remove("selected")
+        if(item.querySelector('a').innerText == "No"){
+          item.classList.add("selected")
+        }
+      }
+    }
+  }
+
+<!--  var filter = document.getElementById("changelist-filter");-->
+<!--  var btns = filter.querySelectorAll("a");-->
+<!--  for (var i = 0; i < btns.length; i++) {-->
+<!--    btns[i].addEventListener("click", function() {-->
+<!--      var current = document.getElementsByClassName("selected");-->
+<!--      current[0].className = current[0].className.replace("selected", "");-->
+<!--      this.className += "selected";-->
+<!--    });-->
+<!--  }-->
+
+  function Delete(){
+    if(confirm("Are you sure you want to delete?")){
+      var checkboxes = document.getElementsByTagName('input');
+      let list = [];
+      for (var i = 0; i < checkboxes.length; i++) {
+          if (checkboxes[i].type == 'checkbox' &&  checkboxes[i].name == 'action-toggle') {
+              if(checkboxes[i].checked) list.push(checkboxes[i].value);
+          }
+      }
+      console.log(list);
+      if(list.length > 0 ){
+        var url = "/manager/delete/"
+
+        fetch(url,{
+          method:'DELETE',
+          headers:{
+            'Content-Type':'application/json',
+            'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify({
+            'object': 'user',
+            'ids': list
+          })
+        })
+        .then((response)=>{
+          return response.json()
+        })
+        .then((data)=>{
+          location.reload()
+        })
+      }
+    }
+  }
+</script>
+{% endblock content %}
