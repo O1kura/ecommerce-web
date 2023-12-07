@@ -270,7 +270,7 @@ class ManageCustomers(View):
 
             if 'anonymous_user' in request.GET:
                 anonymous_user = request.GET.get('anonymous_user')
-                customers = customers.filter(user__isnull=not anonymous_user)
+                customers = customers.filter(user__isnull=(anonymous_user == 'True'))
                 context['anonymous_user'] = anonymous_user
 
             context['customers'] = customers
